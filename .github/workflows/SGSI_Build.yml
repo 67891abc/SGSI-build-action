@@ -40,13 +40,13 @@ jobs:
 
        - name: Cloning...
          run: |
-             git clone https://github.com/xiaoxindada/SGSI-build-tool.git -b 12 $GITHUB_WORKSPACE/SGSI-build-tool
+             git clone --recurse-submodules https://github.com/xiaoxindada/SGSI-build-tool.git -b 12 $GITHUB_WORKSPACE/SGSI-build-tool
            
        - name: Download zip...
          run: |
             cd $GITHUB_WORKSPACE/SGSI-build-tool
             mkdir ./tmp
-            axel -n $(nproc) -U "Mozilla/5.0" $ROM_URL -o "$GITHUB_WORKSPACE/SGSI-build-tool/tmp/$ZIP_NAME" || wget -U "Mozilla/5.0" $ROM_URL -O "$GITHUB_WORKSPACE/SGSI-build-tool/tmp/$ZIP_NAME"
+            wget -U "Mozilla/5.0" $ROM_URL -O "$GITHUB_WORKSPACE/SGSI-build-tool/tmp/$ZIP_NAME"
             echo "zip_file: $(ls "$GITHUB_WORKSPACE/SGSI-build-tool/tmp/")"
             
        - name: Setup Tool Utils...
@@ -54,7 +54,7 @@ jobs:
          run: |
             sudo sed -i 's/USE_MIRROR_FOR_PIP\=true/USE_MIRROR_FOR_PIP\=false/' $GITHUB_WORKSPACE/SGSI-build-tool/setup.sh
             sudo bash $GITHUB_WORKSPACE/SGSI-build-tool/setup.sh
-            sudo apt-get -y --purge remove "adoptopenjdk-11-hotspot"
+            # sudo apt-get -y --purge remove "adoptopenjdk-11-hotspot"
             java -version
             
        - name: Building AB DEVICES SGSI...
@@ -88,5 +88,5 @@ jobs:
            artifacts: ${{ github.workspace }}/SGSI-build-tool/upload/*
            name: xiaoxinSGSI-${{ env.OS_TYPE }}-${{ env.BUILD_TYPE }}-Android${{ env.VERSION }}-unpack
            tag: xiaoxinSGSI-${{ env.OS_TYPE }}-${{ env.BUILD_TYPE }}-Android${{ env.VERSION }}-${{ github.run_number }}
-           body: Use actions auto bulid by Xiaoxindada
+           bodyFile: "${{ github.workspace }}/SGSI-build-tool/SGSI/build_info.txt"
            token: ${{ secrets.GITHUB_TOKEN }}
